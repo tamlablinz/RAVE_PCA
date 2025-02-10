@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
 """
 RAVE Latent Space Analysis to PCA Coordinates
 Author: Moises Horta Valenzuela
-Last Modified: 22/12/2024
+Last Modified: 10/02/2025
 """
 
 import argparse
