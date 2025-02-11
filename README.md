@@ -63,11 +63,11 @@ This project provides a full workflow for working with the latent space of a RAV
 
 For 2D output:
 ```bash
-python consolidated_pca_export.py --model_path path/to/your/model.ts --audio_dir path/to/your/audio_dataset --n_components 2
+python rave-latent-to-pca-map.py --model_path path/to/your/model.ts --audio_dir path/to/your/audio_dataset --n_components 2
 ```
 For 3D output:
 ```bash
-python consolidated_pca_export.py --model_path path/to/your/model.ts --audio_dir path/to/your/audio_dataset --n_components 3
+python rave-latent-to-pca-map.py --model_path path/to/your/model.ts --audio_dir path/to/your/audio_dataset --n_components 3
 ```
 ```
     --model_path: Path to the RAVE model.
@@ -81,7 +81,7 @@ python consolidated_pca_export.py --model_path path/to/your/model.ts --audio_dir
 Launch the Pygame-based GUI by specifying the path to the PCA JSON file:
 
 ```bash
-python 3d-2d-pca-gui.py --pca_json path/to/your_pca_mapping.json
+python gui.py --pca_json path/to/your_pca_mapping.json
 ```
 
 Interactive Controls:
