@@ -97,6 +97,7 @@ Interactive Controls:
     Use the mouse scroll wheel (scroll up to zoom in, scroll down to zoom out).
     SLERP Interpolation:
     Hover over a bubble to smoothly interpolate the latent vector and send it via OSC.
+    Double-click on the latent to set a point in the orbit interpolation.
 
 ```
 
