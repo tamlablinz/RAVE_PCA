@@ -7,7 +7,7 @@ If the JSON contains 3D coordinates ("x", "y", and "z"), it displays a full 3D p
 with interactive camera rotation (right-click drag), zoom (mouse scroll), and smooth SLERP
 interpolation of latent vectors (sent via OSC).
 
-Author: Moises Horta Valenzuela (modified for 2D/3D auto-detection)
+Author: Moisés Horta Valenzuela
 """
 
 import pygame
