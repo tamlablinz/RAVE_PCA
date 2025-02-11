@@ -13,7 +13,7 @@ This project provides a full workflow for working with the latent space of a RAV
    Audio files are encoded using a pre-trained RAVE TorchScript model. The latent vectors are concatenated and processed with PCA to yield a 2D or 3D mapping. The result is saved as a JSON file.
 
 2. **Interactive Visualization:**  
-   A Pygame-based GUI loads the PCA JSON file, auto-detecting whether the data is 2D or 3D. For 3D data, the GUI provides interactive camera rotation (via right-click drag) and zoom (via mouse scroll). Additionally, when the user hovers over a bubble representing a PCA sample, the GUI smoothly interpolates (using SLERP) between latent vectors and sends the current latent vector via OSC.
+   A GUI loads the PCA JSON file, auto-detecting whether the data is 2D or 3D. For 3D data, the GUI provides interactive camera rotation (via right-click drag) and zoom (via mouse scroll). Additionally, when the user hovers over a bubble representing a PCA sample, the GUI smoothly interpolates (using SLERP) between latent vectors and sends the current latent vector via OSC.
 
 3. **OSC Integration & Pure Data:**  
    OSC messages are sent to an external OSC server (e.g., a Pure Data patch) which can be used to drive sound synthesis or other processing tasks using RAVE via the nn~ external.
@@ -83,7 +83,7 @@ python rave-latent-to-pca-map.py --model_path path/to/your/model.ts --audio_dir 
 
 **Running the Visualization GUI:**
 
-Launch the Pygame-based GUI by specifying the path to the PCA JSON file:
+Launch the GUI by specifying the path to the PCA JSON file:
 
 ```bash
 python gui.py --pca_json path/to/your_pca_mapping.json
