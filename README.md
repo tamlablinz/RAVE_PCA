@@ -68,23 +68,24 @@ python consolidated_pca_export.py --model_path path/to/your/model.ts --audio_dir
 For 3D output:
 ```bash
 python consolidated_pca_export.py --model_path path/to/your/model.ts --audio_dir path/to/your/audio_dataset --n_components 3
-
+```
+```
     --model_path: Path to the RAVE model.
     --audio_dir: Directory containing .wav files.
     --n_components: Set to 2 for 2D or 3 for 3D.
     --output_json: (Optional) Specify a custom output file name.
 ```
 
-Running the Visualization GUI
+**Running the Visualization GUI:**
 
 Launch the Pygame-based GUI by specifying the path to the PCA JSON file:
 
-```
+```bash
 python 3d-2d-pca-gui.py --pca_json path/to/your_pca_mapping.json
 ```
 
 Interactive Controls:
-
+```
     Camera Rotation (3D only):
     Right-click and drag the mouse.
     Zoom (3D only):
@@ -92,3 +93,4 @@ Interactive Controls:
     SLERP Interpolation:
     Hover over a bubble to smoothly interpolate the latent vector and send it via OSC.
 
+```
