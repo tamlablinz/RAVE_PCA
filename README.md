@@ -52,7 +52,9 @@ This project provides a full workflow for working with the latent space of a RAV
     ```
 
 3. Prepare Your RAVE Model and Audio Dataset:
-   Place your pre-trained RAVE TorchScript model in an appropriate location (update the --model_path accordingly).
+   
+   Place your pre-trained RAVE TorchScript model in an appropriate location (update the ```--model_path``` accordingly).
+   
    Ensure you have a directory with your .wav audio files.
 
 ## Usage
