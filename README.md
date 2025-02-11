@@ -94,3 +94,13 @@ Interactive Controls:
     Hover over a bubble to smoothly interpolate the latent vector and send it via OSC.
 
 ```
+
+### Author Credits
+
+- **Python Code:**  
+  Moisés Horta Valenzuela
+  Guest Professor, Winter Semester 2024-2025
+
+- **Pure Data Patch:**  
+  Enrique Tomas
+
