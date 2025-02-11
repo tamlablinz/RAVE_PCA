@@ -96,11 +96,12 @@ Interactive Controls:
 ```
 
 ### Author Credits
-
-- **Python Code:**  
+```
+- Python Code:
   Moisés Horta Valenzuela
   Guest Professor, Winter Semester 2024-2025
 
-- **Pure Data Patch:**  
+- Pure Data Patch: 
   Enrique Tomas
 
+```
