@@ -5,3 +5,4 @@ tqdm>=4.50.0
 scikit-learn>=0.24.0
 pygame
 python-osc
+umap-learn
