@@ -45,13 +45,13 @@ except ImportError:
 # Global Variables
 # ---------------------
 bubbles = []           # List to hold all Bubble objects.
-DATA_IS_3D = False     # Will be determined from the JSON (True if "z" is present).
+DATA_IS_3D = False     # Will be determined from the JSON.
 
-# Global cursor position (updated by the mouse)
+# Global cursor position.
 cursor_x = 0.0
 cursor_y = 0.0
 
-# OSC client for sending OSC messages.
+# OSC client.
 osc_client = None
 
 # Set your virtual (logical) resolution.
@@ -59,30 +59,30 @@ DEFAULT_WIDTH, DEFAULT_HEIGHT = int(screen_width / 1.25), int(screen_height / 1.
 VIRTUAL_WIDTH, VIRTUAL_HEIGHT = DEFAULT_WIDTH, DEFAULT_HEIGHT
 WIDTH, HEIGHT = VIRTUAL_WIDTH, VIRTUAL_HEIGHT
 
-# Camera parameters for perspective projection.
+# Camera parameters.
 CAMERA_DISTANCE = 300
 SCREEN_CENTER = (WIDTH // 2, HEIGHT // 2)
 
-# Scaling factors for PCA coordinates.
+# Scaling factors.
 SCALE_FACTOR = 100
 Z_SCALE_FACTOR = 100
 Z_OFFSET = 300
 
-# Global camera rotation parameters (in radians)
+# Camera rotation.
 camera_yaw = 0.0
 camera_pitch = 0.0
 
-# Variables for camera rotation dragging.
+# Drag variables.
 rotating = False
 prev_mouse_x = None
 prev_mouse_y = None
 ROTATION_SENSITIVITY = 0.01
 
-# Variables for zooming.
+# Zoom.
 ZOOM_STEP = 50
 MIN_CAMERA_DISTANCE = 1
 
-# Variables for normal (hover-based) SLERP interpolation.
+# Normal (hover-based) SLERP interpolation.
 current_latent = None
 target_latent = None
 INTERP_SPEED = 0.999
@@ -90,11 +90,11 @@ INTERP_SPEED = 0.999
 # ---------------------
 # Orbit Feature Variables
 # ---------------------
-orbit_points = []      # List to hold orbit-selected bubbles.
-orbit_index = 0        # Current index in orbit_points.
-orbit_t = 0.0          # Interpolation parameter for the current segment.
-last_click_time = 0    # For double-click detection.
-double_click_threshold = 300  # milliseconds
+orbit_points = []      # Orbit-selected bubbles.
+orbit_index = 0
+orbit_t = 0.0
+last_click_time = 0
+double_click_threshold = 300  # ms
 
 # Orbit speed slider variables.
 ORBIT_SLIDER_X = 10
@@ -102,13 +102,12 @@ ORBIT_SLIDER_Y = VIRTUAL_HEIGHT - 70
 ORBIT_SLIDER_WIDTH = 200
 ORBIT_SLIDER_HEIGHT = 20
 orbit_slider_active = False
-orbit_slider_value = 0.5  # normalized value (0..1)
-# Map slider value to speed in Hz (between 0.001 Hz and 25 Hz)
+orbit_slider_value = 0.5
 ORBIT_SPEED_MIN = 0.001
-ORBIT_SPEED_MAX = 25.0
+ORBIT_SPEED_MAX = 25.0  # Maximum orbit speed in Hz.
 orbit_speed = orbit_slider_value * (ORBIT_SPEED_MAX - ORBIT_SPEED_MIN) + ORBIT_SPEED_MIN
 
-# Define Clear Trajectories button.
+# Clear Trajectories button.
 ORBIT_CLEAR_BTN_X = ORBIT_SLIDER_X
 ORBIT_CLEAR_BTN_Y = ORBIT_SLIDER_Y + ORBIT_SLIDER_HEIGHT + 10
 ORBIT_CLEAR_BTN_WIDTH = ORBIT_SLIDER_WIDTH
@@ -120,11 +119,9 @@ NORMAL_SLIDER_Y = VIRTUAL_HEIGHT - 40
 NORMAL_SLIDER_WIDTH = 200
 NORMAL_SLIDER_HEIGHT = 20
 normal_slider_active = False
-normal_slider_value = 0.99  # normalized value (0..1)
+normal_slider_value = 0.99
 
-# ---------------------
-# Persistent Selection
-# ---------------------
+# Persistent selection.
 last_selected_bubble = None
 
 # ---------------------
@@ -136,7 +133,7 @@ FS_OFFSET_X = 0
 FS_OFFSET_Y = 0
 
 # ---------------------
-# Helper Function: SLERP (for general use with magnitude blending)
+# Helper Function: SLERP
 # ---------------------
 def slerp(v0, v1, t):
     v0 = np.array(v0, dtype=float)
@@ -159,14 +156,9 @@ def slerp(v0, v1, t):
     return (interp_unit * interp_norm).tolist()
 
 # ---------------------
-# Helper Function: SLERP on N-Dimensional Vectors (true spherical interpolation)
+# Helper Function: SLERP on N-Dimensional Vectors
 # ---------------------
 def slerp_nd(v0, v1, t):
-    """
-    Performs true spherical interpolation on N-dimensional vectors.
-    This version does not re-normalize the inputs; it assumes that the two vectors
-    lie on the same hypersphere.
-    """
     v0 = np.array(v0, dtype=float)
     v1 = np.array(v1, dtype=float)
     dot = np.clip(np.dot(v0, v1), -1.0, 1.0)
@@ -207,7 +199,8 @@ class Bubble:
             proj_diameter = self.base_diameter
             return proj_x, proj_y, proj_diameter
         x_rot, y_rot, z_rot = rotate_point(self.x, self.y, self.z, yaw, pitch)
-        factor = camera_distance / (camera_distance + z_rot)
+        denom = camera_distance + z_rot
+        factor = camera_distance / denom if denom != 0 else 1
         proj_x = screen_center[0] + x_rot * factor
         proj_y = screen_center[1] - y_rot * factor
         proj_diameter = self.base_diameter * factor
@@ -221,9 +214,18 @@ class Bubble:
 
     def display(self, surface, camera_distance, screen_center, yaw, pitch):
         proj_x, proj_y, proj_diameter = self.project(camera_distance, screen_center, yaw, pitch)
-        cx = int(float(proj_x))
-        cy = int(float(proj_y))
-        radius = int(float(proj_diameter) / 2)
+        # Check that the projection values are finite numbers.
+        if not (math.isfinite(proj_x) and math.isfinite(proj_y) and math.isfinite(proj_diameter)):
+            return
+        try:
+            cx = int(float(proj_x))
+            cy = int(float(proj_y))
+            radius = int(float(proj_diameter) / 2)
+        except Exception as e:
+            print("Conversion error in display:", e)
+            return
+        if radius <= 0:
+            return
         if self.orbit_selected:
             color = (128, 0, 128)
             pygame.draw.circle(surface, color, (cx, cy), radius)
@@ -277,16 +279,16 @@ def load_bubbles(json_filename):
     except Exception as e:
         print("Error loading JSON file:", e)
         return
-    pca_values = json_data.get("pca", [])
+    pca_values = json_data.get("mapping", [])
     print("Number of objects in JSON:", len(pca_values))
     bubbles = []
     if pca_values:
-        coord = pca_values[0].get("PCA coordinate", {})
+        coord = pca_values[0].get("Reduced coordinate", {})
         DATA_IS_3D = ("z" in coord)
     else:
         DATA_IS_3D = False
     for pca in pca_values:
-        position = pca.get("PCA coordinate", {})
+        position = pca.get("Reduced coordinate", {})
         x_val = float(position.get("x", 0)) * SCALE_FACTOR
         y_val = float(position.get("y", 0)) * SCALE_FACTOR
         z_val = float(position.get("z", 0)) * Z_SCALE_FACTOR + Z_OFFSET if DATA_IS_3D else 0
@@ -331,7 +333,6 @@ def main():
     args = parser.parse_args()
 
     pygame.init()
-
     virtual_surface = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
     screen = pygame.display.set_mode((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
     pygame.display.set_caption("RAVE Latent PCA Viz")
@@ -363,8 +364,6 @@ def main():
     orbit_slider_active = False
     orbit_slider_value = 0.5
     ORBIT_SPEED_MIN = 0.001
-    ORBIT_SPEED_MAX = 22.0  # Note: This value is used only for the slider mapping.
-    # To change the maximum orbit speed to 25 Hz, update ORBIT_SPEED_MAX below:
     ORBIT_SPEED_MAX = 25.0
     orbit_speed = orbit_slider_value * (ORBIT_SPEED_MAX - ORBIT_SPEED_MIN) + ORBIT_SPEED_MIN
     last_click_time = 0
@@ -374,19 +373,20 @@ def main():
     normal_slider_value = 0.99
     INTERP_SPEED = normal_slider_value * (1.0 - 0.90) + 0.90
 
+    WIDTH, HEIGHT = VIRTUAL_WIDTH, VIRTUAL_HEIGHT
+    SCREEN_CENTER = (WIDTH // 2, HEIGHT // 2)
+    FS_SCALE_FACTOR = 1.0
+    FS_OFFSET_X, FS_OFFSET_Y = 0, 0
+
     running = True
     hovered_bubble = None
-
     while running:
-        dt = clock.get_time() / 1000.0  # elapsed time in seconds
+        dt = clock.get_time() / 1000.0
         current_time = pygame.time.get_ticks()
         for event in pygame.event.get():
-            if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
-                pos = event.pos
-                if fullscreen:
-                    pos = convert_mouse_coords(event.pos)
             if event.type == pygame.QUIT:
                 running = False
+            # Toggle fullscreen on F11.
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F11:
                     fullscreen = not fullscreen
@@ -404,27 +404,11 @@ def main():
                         FS_SCALE_FACTOR = 1.0
                         FS_OFFSET_X, FS_OFFSET_Y = 0, 0
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                mx, my = pos
+                pos = event.pos
+                if fullscreen:
+                    pos = convert_mouse_coords(event.pos)
                 if event.button == 1:
-                    # Double-click detection: if the time between clicks is less than the threshold...
-                    if current_time - last_click_time < double_click_threshold:
-                        for b in bubbles:
-                            if b.rollover(mx, my, CAMERA_DISTANCE, SCREEN_CENTER,
-                                          camera_yaw if DATA_IS_3D else 0,
-                                          camera_pitch if DATA_IS_3D else 0):
-                                # Toggle membership in the orbit.
-                                if b in orbit_points:
-                                    orbit_points.remove(b)
-                                    b.orbit_selected = False
-                                    print("Removed bubble from orbit.")
-                                else:
-                                    orbit_points.append(b)
-                                    b.orbit_selected = True
-                                    print("Added bubble to orbit.")
-                                break
-                    last_click_time = current_time
-
-                    # Also check slider interactions.
+                    mx, my = pos
                     if len(orbit_points) >= 2:
                         if (ORBIT_CLEAR_BTN_X <= mx <= ORBIT_CLEAR_BTN_X + ORBIT_CLEAR_BTN_WIDTH and
                             ORBIT_CLEAR_BTN_Y <= my <= ORBIT_CLEAR_BTN_Y + ORBIT_CLEAR_BTN_HEIGHT):
@@ -448,9 +432,24 @@ def main():
                             normal_slider_value = (mx - NORMAL_SLIDER_X) / NORMAL_SLIDER_WIDTH
                             INTERP_SPEED = normal_slider_value * (1.0 - 0.90) + 0.90
                             continue
+                    if current_time - last_click_time < double_click_threshold:
+                        for b in bubbles:
+                            if b.rollover(mx, my, CAMERA_DISTANCE, SCREEN_CENTER,
+                                          camera_yaw if DATA_IS_3D else 0,
+                                          camera_pitch if DATA_IS_3D else 0):
+                                if b in orbit_points:
+                                    orbit_points.remove(b)
+                                    b.orbit_selected = False
+                                    print("Removed bubble from orbit.")
+                                else:
+                                    orbit_points.append(b)
+                                    b.orbit_selected = True
+                                    print("Added bubble to orbit.")
+                                break
+                    last_click_time = current_time
                 elif event.button == 3:
                     rotating = True
-                    prev_mouse_x, prev_mouse_y = mx, my
+                    prev_mouse_x, prev_mouse_y = pos
                 elif event.button == 4:
                     CAMERA_DISTANCE = max(MIN_CAMERA_DISTANCE, CAMERA_DISTANCE - ZOOM_STEP)
                 elif event.button == 5:
@@ -464,37 +463,35 @@ def main():
                 if normal_slider_active:
                     normal_slider_active = False
             elif event.type == pygame.MOUSEMOTION:
-                mx, my = pos
-                cursor_x, cursor_y = mx, my
+                pos = event.pos
+                if fullscreen:
+                    pos = convert_mouse_coords(event.pos)
+                cursor_x, cursor_y = pos
                 if orbit_slider_active:
-                    orbit_slider_value = (mx - ORBIT_SLIDER_X) / ORBIT_SLIDER_WIDTH
+                    orbit_slider_value = (pos[0] - ORBIT_SLIDER_X) / ORBIT_SLIDER_WIDTH
                     orbit_slider_value = max(0, min(1, orbit_slider_value))
                     orbit_speed = orbit_slider_value * (ORBIT_SPEED_MAX - ORBIT_SPEED_MIN) + ORBIT_SPEED_MIN
                 if normal_slider_active:
-                    normal_slider_value = (mx - NORMAL_SLIDER_X) / NORMAL_SLIDER_WIDTH
+                    normal_slider_value = (pos[0] - NORMAL_SLIDER_X) / NORMAL_SLIDER_WIDTH
                     normal_slider_value = max(0, min(1, normal_slider_value))
                     INTERP_SPEED = normal_slider_value * (1.0 - 0.90) + 0.90
                 if rotating and prev_mouse_x is not None and prev_mouse_y is not None:
-                    dx = mx - prev_mouse_x
-                    dy = my - prev_mouse_y
+                    dx = pos[0] - prev_mouse_x
+                    dy = pos[1] - prev_mouse_y
                     camera_yaw += dx * ROTATION_SENSITIVITY
                     camera_pitch += dy * ROTATION_SENSITIVITY
-                    prev_mouse_x, prev_mouse_y = mx, my
+                    prev_mouse_x, prev_mouse_y = pos
 
-        # ---------------------
-        # Orbit Mode Interpolation (using true spherical interpolation on the hypersphere)
-        # ---------------------
         if len(orbit_points) >= 2:
-            orbit_t += orbit_speed * dt  # orbit_speed in Hz; dt in seconds
+            orbit_t += orbit_speed * dt
             if orbit_t >= 1.0:
                 orbit_t -= 1.0
                 orbit_index = (orbit_index + 1) % len(orbit_points)
-            if orbit_index >= len(orbit_points):
-                orbit_index = 0
             next_index = (orbit_index + 1) % len(orbit_points)
             current_orbit_latent = slerp_nd(orbit_points[orbit_index].latent,
                                             orbit_points[next_index].latent,
                                             orbit_t)
+            # current_orbit_latent = orbit_points[orbit_index].latent
             osc_client.send_message("/latent", current_orbit_latent)
         else:
             orbit_index = 0
@@ -513,16 +510,12 @@ def main():
                 current_latent = slerp(current_latent, target_latent, INTERP_SPEED)
                 osc_client.send_message("/latent", current_latent)
 
-        # ---------------------
-        # Drawing Phase
-        # ---------------------
         virtual_surface.fill((0, 0, 0))
         for b in bubbles:
             b.display(virtual_surface, CAMERA_DISTANCE, SCREEN_CENTER,
                       camera_yaw if DATA_IS_3D else 0,
                       camera_pitch if DATA_IS_3D else 0)
-        indicator_color = (0, 202, 0)
-        pygame.draw.circle(virtual_surface, indicator_color, (int(cursor_x), int(cursor_y)), 5)
+        pygame.draw.circle(virtual_surface, (0, 202, 0), (int(cursor_x), int(cursor_y)), 5)
         if len(orbit_points) >= 2:
             p1 = orbit_points[orbit_index].project(CAMERA_DISTANCE, SCREEN_CENTER,
                                                    camera_yaw if DATA_IS_3D else 0,
@@ -582,7 +575,7 @@ def main():
         else:
             screen.blit(virtual_surface, (0, 0))
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(90)
     pygame.quit()
 
 if __name__ == '__main__':
