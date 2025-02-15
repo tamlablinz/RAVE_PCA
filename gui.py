@@ -482,16 +482,28 @@ def main():
                     camera_pitch += dy * ROTATION_SENSITIVITY
                     prev_mouse_x, prev_mouse_y = pos
 
+        # if len(orbit_points) >= 2:
+        #     orbit_t += orbit_speed * dt
+        #     if orbit_t >= 1.0:
+        #         orbit_t -= 1.0
+        #         orbit_index = (orbit_index + 1) % len(orbit_points)
+        #     next_index = (orbit_index + 1) % len(orbit_points)
+        #     current_orbit_latent = slerp_nd(orbit_points[orbit_index].latent,
+        #                                     orbit_points[next_index].latent,
+        #                                     orbit_t)
+        #     # current_orbit_latent = orbit_points[orbit_index].latent
+        #     osc_client.send_message("/latent", current_orbit_latent)
+
         if len(orbit_points) >= 2:
             orbit_t += orbit_speed * dt
             if orbit_t >= 1.0:
-                orbit_t -= 1.0
-                orbit_index = (orbit_index + 1) % len(orbit_points)
+                steps = int(orbit_t)        # Number of complete transitions.
+                orbit_t %= 1.0              # Remainder becomes the new interpolation parameter.
+                orbit_index = (orbit_index + steps) % len(orbit_points)
             next_index = (orbit_index + 1) % len(orbit_points)
             current_orbit_latent = slerp_nd(orbit_points[orbit_index].latent,
                                             orbit_points[next_index].latent,
                                             orbit_t)
-            # current_orbit_latent = orbit_points[orbit_index].latent
             osc_client.send_message("/latent", current_orbit_latent)
         else:
             orbit_index = 0
