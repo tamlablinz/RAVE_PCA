@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
 """
-RAVE Latent Space Analysis to PCA Coordinates
-Consolidated version that supports exporting either a 2D or 3D PCA mapping (or any n-dimensional mapping)
-from the RAVE latent space.
+RAVE Latent Space Analysis to Dimensionality Reduced Coordinates
+Consolidated version that supports exporting either a 2D or 3D mapping (or any n-dimensional mapping)
+from the RAVE latent space using PCA, T-SNE, or UMAP.
 
 Author: Moisés Horta Valenzuela
-Last Modified: 11/02/2025
+Last Modified: 14/02/2025
 """
 
 import argparse
