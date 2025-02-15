@@ -17,6 +17,7 @@ speed. A "Clear Trajectories" button is provided under the orbit speed slider to
 selections. Press F11 to toggle fullscreen mode (using the computer's native resolution).
 
 Author: Moisés Horta Valenzuela
+Last Modified: 15/02/2025
 """
 
 import pygame
