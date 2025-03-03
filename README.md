@@ -1,4 +1,4 @@
-# RAVE Latent PCA Visualizer
+# NEBULA: RAVE Latent PCA Visualizer
 
 ![RAVE-PCA](img/pca.PNG)
 ![RAVE-PCA-Orbit](img/orbit.PNG)
