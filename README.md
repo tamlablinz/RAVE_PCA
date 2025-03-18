@@ -3,7 +3,7 @@
 ![RAVE-PCA](img/pca.PNG)
 ![RAVE-PCA-Orbit](img/orbit.PNG)
 
-Results Video Documentation: https://tamcloud.kunstuni-linz.at/s/QnWNEQkAobGseGA
+# Results Video Documentation: https://tamcloud.kunstuni-linz.at/s/QnWNEQkAobGseGA
 
 A suite of tools for analyzing and visualizing audio encoded into the latent space of a pre-trained RAVE model. This project extracts latent vectors from audio files, applies PCA to reduce their dimensionality (2D or 3D), and then visualizes these PCA mappings in an interactive GUI. The GUI supports camera rotation, zoom, and smooth SLERP (spherical linear interpolation) between latent vectors. OSC messages are sent in real time to external applications (such as a Pure Data patch) for further processing or sound synthesis.
 
