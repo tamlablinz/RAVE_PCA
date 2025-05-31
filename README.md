@@ -47,7 +47,7 @@ This project provides a full workflow for working with the latent space of a RAV
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/rave-latent-pca-visualizer.git
+   git clone https://github.com/tamlablinz/RAVE_PCA.git
    cd rave-latent-pca-visualizer
    ```
 
