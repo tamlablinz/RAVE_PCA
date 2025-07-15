@@ -2,7 +2,6 @@ lib.name = pca3d
 
 class.sources = \
 	pca3d.c \
-	closest.c \
 	${empty}
 
 objectsdir = ./build
